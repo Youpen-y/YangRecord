@@ -1,0 +1,1 @@
+在 Windows 系统中，`pagefile` 是硬盘驱动器或 SSD 的保留区域，用作 RAM 的扩展，是虚拟内存管理的一部分。（与 Linux 上的交换空间 swap 类似）
