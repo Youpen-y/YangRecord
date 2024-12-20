@@ -485,9 +485,9 @@ struct ibv_port_attr {
 
     uint16_t        pkey_tbl_len;
 
-    uint16_t        lid;
+    uint16_t        lid;		// local identifier（子网下唯一标识一个端口）
 
-    uint16_t        sm_lid;
+    uint16_t        sm_lid;	// Subnet Manager Local Identifier（标识子网下子网管理器的端口）
 
     uint8_t         lmc;
 
@@ -880,15 +880,15 @@ struct ibv_mw {
 
 struct ibv_global_route {
 
-    union ibv_gid       dgid;
+    union ibv_gid       dgid;		// 目的地 GID 或 MGID
 
-    uint32_t        flow_label;
+    uint32_t        flow_label;	// Flow label
 
-    uint8_t         sgid_index;
+    uint8_t         sgid_index;	// 源 GID 索引
 
-    uint8_t         hop_limit;
+    uint8_t         hop_limit;	// 跳数限制
 
-    uint8_t         traffic_class;
+    uint8_t         traffic_class;	// 流量等级
 
 };
 
@@ -1010,19 +1010,19 @@ enum ibv_rate mbps_to_ibv_rate(int mbps) __attribute_const;
 
 struct ibv_ah_attr {
 
-    struct ibv_global_route grh;
+    struct ibv_global_route grh;	// Global Routing Header (GRH) 属性
 
-    uint16_t        dlid;
+    uint16_t        dlid;	// 目的地 LID
 
-    uint8_t         sl;
+    uint8_t         sl;		// 服务等级
 
-    uint8_t         src_path_bits;
+    uint8_t         src_path_bits;	// 源路径位 （Source path bits）
 
-    uint8_t         static_rate;
+    uint8_t         static_rate;		// 最大静态速率
 
-    uint8_t         is_global;
+    uint8_t         is_global;		// GRH 属性有效与否
 
-    uint8_t         port_num;
+    uint8_t         port_num;			// 物理端口号
 
 };
 

@@ -105,3 +105,82 @@ InfiniBand Software Stack https://www.nminoru.jp/~nminoru/network/infiniband/iba
 [SECM: Securely and efficiently connections setup using RDMA-CM - ScienceDirect](https://www.sciencedirect.com/science/article/pii/S1389128624003736)
 
 ---
+
+`RDMA` 采用异步队列（`Asynchronous queues`）:
+- 数据传输路径由向发送/接受队列中提交工作请求（ `work requests`） 和从完成队列中搜集完成事件驱动。
+> Data path is driven by submitting work requests to send and receive queues and collecting completions from completion queues.
+- 允许计算和通信的高效重叠。
+- 允许通过 `per-CPU queues` 或 `per-thread queues` 支持高效的并行应用。
+
+---
+论文中比较
+网络往返延迟：UDP，IPoIB，UD SEND/RECV
+
+---
+`RDMA` Doorbell Batching 
+每个硬件厂商都会编写自己的底层驱动（如，在 `rdma-core/providers` 下，`mlx4` 实现的
+`mlx4_post_send`, `rxe`实现的 `rxe_post_send` ）
+[mlx4_post_send](https://github.com/linux-rdma/rdma-core/blob/c8517c5df900556735273a1b18e33a025b42870f/providers/mlx4/qp.c#L213)
+
+MMIO 相关文件
+- `rdma-core/util/mmio.h`
+- `rdma-core/util/mmio.c`
+
+Doorbell 批处理主要影响通知 `NIC` 有 `work requests` 处理的效率，并不会直接减少网络往返次数。
+Doorbell Ring Operation
+敲门铃操作——通知 `NIC` 工作队列中有新的工作请求。此操作通过将内存映射 I/O （MMIO）写入 NIC 上的特定寄存器来完成的。
+- 由于 MMIO 写入，每个 Doorbell Ring Operation 都会产生延迟，这是一个相对昂贵的操作（绕过 CPU 缓存并需要与硬件交互）。
+- 减少门铃响铃操作的数量可以最大限度地减少与这些 MMIO 写入相关的开销，从而提高性能。
+
+Doorbell Batching （门铃批处理——最小化 MMIO 写入开销，侧重于本地通知效率）
+通过链接多个工作请求（`work requests`）并在单个批次中发布它们，来减少敲门铃的次数。不必为每个工作请求敲门铃，而是为整个批次敲一次门铃。
+
+示例：
+```c
+struct ibv_send_wr wr_list[10];
+
+for(int i = 0; i < 10; ++i) {
+	wr_list[i] = create_wr(sge, ...);	// 创建 WR
+}
+
+// 链接 WRs 以便门铃批处理
+for (size_t i = 0; i < 9; ++i) {
+	wr_list[i].next = &wr_list[i+1];
+}
+
+// 发布一批 WRs
+int ret = ibv_post_send(qp, &wr_list[0], &bad_wr);
+if (ret != 0) {
+	exit(-1);
+}
+
+// 轮询完成
+struct ibv_wc wc;
+int num_completions = 0;
+while (num_completions < wr_list.size()) {
+	int nc = ibv_poll_cq(cq, 1, &wc);
+	if (nc < 0) {
+		exit(-1);
+	}
+	if (nc > 0) {
+		if (wc.status != IBV_WC_SUCCESS) {
+			exit(-1);
+		}
+		++num_completions;
+	}
+}
+```
+
+---
+论文中绘制 `InfiniBand` QP 的状态机。
+
+在 `InfiniBand` 中，处于 `INIT` 状态的 `QPs` 能发布 `RRs` （Receive Requests）但不能处理。
+
+---
+`Verbs` 中有两种函数：慢路径函数和快路径函数。
+- 慢路径函数——与资源（如上下文、保护域和内存区域）的创建和配置相关的函数。由于涉及内核，因此会产生上下文切换的昂贵开销。如 `ibv_open_device()`, `ibv_alloc_pd`，`ibv_reg_mr` _基本上在初始化时完成_
+- 快路径函数——处理操作的启动和完成。由于绕过内核，比慢速路径函数快得多。通信的关键路径主要由快速路径函数组成，偶尔也包含慢速路径函数。
+
+
+
+
