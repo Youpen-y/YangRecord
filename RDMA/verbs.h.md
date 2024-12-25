@@ -1162,24 +1162,16 @@ struct ibv_qp_cap {
 
 struct ibv_qp_init_attr {
 
-    void               *qp_context;
-
-    struct ibv_cq          *send_cq;
-
-    struct ibv_cq          *recv_cq;
-
-    struct ibv_srq         *srq;
-
-    struct ibv_qp_cap   cap;
-
-    enum ibv_qp_type    qp_type;
-
-    int         sq_sig_all;
+    void               *qp_context;		// QP 的用户上下文
+    struct ibv_cq          *send_cq;	// 发送完成队列
+    struct ibv_cq          *recv_cq;	// 接收完成队列
+    struct ibv_srq         *srq;			// 共享接收队列（可选）
+    struct ibv_qp_cap   cap;				// QP 容量属性
+    enum ibv_qp_type    qp_type;			// QP 类型
+    int         sq_sig_all;				// 是否为所有发送请求生成完成事件
 
     /* Below is needed for backwards compatabile */
-
     struct ibv_xrc_domain  *xrc_domain;
-
 };
 
   

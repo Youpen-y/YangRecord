@@ -186,7 +186,35 @@ struct rdma_addrinfo {
 #define RAI_NUMERICHOST 0x00000002 // 主机名是数字形式 
 #define RAI_NOROUTE 0x00000004 // 不执行路由解析 
 #define RAI_FAMILY 0x00000008 // 指定地址族
+```
 
 
 
+
+### `ibv_qp_init_attr`
+```c
+struct ibv_qp_init_attr {
+
+    void               *qp_context;		// QP 的用户上下文
+    struct ibv_cq          *send_cq;	// 发送完成队列
+    struct ibv_cq          *recv_cq;	// 接收完成队列
+    struct ibv_srq         *srq;			// 共享接收队列（可选）
+    struct ibv_qp_cap   cap;				// QP 容量属性
+    enum ibv_qp_type    qp_type;			// QP 类型
+    int         sq_sig_all;				// 是否为所有发送请求生成完成事件
+
+    /* Below is needed for backwards compatabile */
+    struct ibv_xrc_domain  *xrc_domain;
+};
+```
+
+
+```c
+struct ibv_qp_cap {
+    uint32_t        max_send_wr;	// 发送队列中同时存在的最大工作请求（WR）数量
+    uint32_t        max_recv_wr;	// 接收队列中同时存在的最大工作请求（WR）数量
+    uint32_t        max_send_sge;	// 每个发送工作请求可以包含的最大分散/聚集条目数
+    uint32_t        max_recv_sge;	// 每个接收工作请求可以包含的最大分散/聚集条目数
+    uint32_t        max_inline_data;	// 支持的最大内联数据大小
+};
 ```
