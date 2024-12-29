@@ -196,3 +196,25 @@ RDMA UD 模式
 解决方案：
 - 将 `msg` 大小限制为 $MSG_{size} < MTU$ ，无非是多下发几次消息。
 - 对大消息进行分片重组。
+
+---
+预取的设计与优化
+
+优化前
+机器想要访问非本地页，将触发两次段违例
+- 第一次段违例负责向远端发送 GETP(addr，read) 消息，远端返回 addr 对应的页，授予读权限
+- 第二次段违例负责向远端发送 GETP(addr, write) 消息，远端返回 addr 对应的页，授予写权限
+
+利用局部性原理（预先打包机器随后的几页）实现预取
+依赖变量：
+`prefetch` - 优化开关
+`prefetch_pages` - 希望预取的页数
+`max_checking_pages` - 向后检查的页数
+
+触发条件
+`prefetch=on && prefetch_pages > 0 && max_checking_pages > 0` 
+
+远端机器收到 `GETP(addr, read)`，将最多向后检查 `max_checking_pages`，至多打包 `prefetch_pages` 页返回。
+
+很多优化是一种权衡，优化效果依赖于具体应用使权衡的天平更偏向于那边。
+
