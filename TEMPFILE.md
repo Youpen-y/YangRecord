@@ -198,6 +198,14 @@ RDMA UD 模式
 - 对大消息进行分片重组。
 
 ---
+上半年主要在调研 RDMA 技术
+- `perftest` 与 `fio` 评测 RDMA 通信与本地 SSD 访问性能访问差异
+- RDMA 相关论文分享与 RDMA 综述汇报
+- 网络编程与RDMA 通信库（`libibverbs` 和 `librdmacm` ）学习
+---
+
+
+---
 预取的设计与优化
 
 优化前
@@ -214,11 +222,33 @@ RDMA UD 模式
 触发条件
 `prefetch=on && prefetch_pages > 0 && max_checking_pages > 0` 
 
-远端机器收到 `GETP(addr, read)`，将最多向后检查 `max_checking_pages`，至多打包 `prefetch_pages` 页返回。
+远端机器在收到 `GETP(addr, read)`，将最多向后检查 `max_checking_pages` 页，至多打包 `prefetch_pages` 页返回。
 
 分析：对于局部性强的应用可以减少段违例处理次数，减少与远端的通信次数，但是无效的检查与页拷贝可能增加开销。
 
-优化是一种权衡，优化效果依赖于具体应用使权衡的天平更偏向于那边。
+优化是一种权衡，优化的效果依赖于具体的应用。
 
 ----
-在易用性方面的
+系统结构上的优化
+- 端口占用上优化（降低端口使用从 $n^2$ 到 $n$）
+- 多线程 `epoll` 替换单线程 `select`
+	- 任务分解（main/server/client/listen）
+	- 任务同步
+	- UDP上层实现确认机制，重传机制
+- 采用事件驱动替换 IO 信号中断驱动
+- 
+---
+系统易用性方面的优化
+- 增设 `.jiaconf` 文件用于系统配置
+- 自定义的 `.jiahosts` ，不依赖 `/etc/hosts` 进行解析
+- 远端执行环境整理
+- 接口整理（`jia_falloc(..., flag)`）
+- 增加日志功能（调试用）与文档注释（维护用）
+
+一些实验性的测试
+- 无锁输入输出队列 vs 信号量/锁数据结构
+---
+RDMA下 设计实现
+当前每个传输消息的大小是 40960 字节，但
+划分控制消息与数据消息
+- 使用 TCP 

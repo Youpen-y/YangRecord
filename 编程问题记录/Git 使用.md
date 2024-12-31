@@ -39,7 +39,34 @@ git config --global push.default current
 ```
 
 ### `git stash`
+```bash
+# 保存当前工作目录的修改
+git stash save "description info"
 
+# 查看现有的 stash 列表
+git stash list
+
+# 恢复最近的 stash
+git stash pop	stash@{n}		# 恢复并删除 stash@{n}
+git stash apply stash@{n}	# 只恢复不删除 stash@{n}
+
+# 删除 stash
+ git stash drop stash@{n}	# 删除 stash@{n}
+ git stash clear				# 删除所有的 stash
+
+
+# 查看最近一次 stash 的改动概要
+git stash show
+
+# 查看最近一次 stash 的详细改动内容
+git stash show -p
+
+# 查看指定 stash{n} 的改动
+git stash show [-p] stash@{n}
+
+# 查看具体某个文件的改动
+git stash show [-p] stash@{n} path/to/file
+```
 
 ### `HEAD` 用法
 `HEAD` 简单来说是一个指针，指向当前所在的分支或特定的提交。
