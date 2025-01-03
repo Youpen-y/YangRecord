@@ -1,0 +1,1 @@
+GRUB（GNU GRand Unified Bootloader）源自 GNU project 的 `bootloader` 包。[多重引导规范](https://www.gnu.org/software/grub/manual/multiboot/multiboot.html)的参考实现，用户可用它来选择引导计算机上安装的多个操作系统之一，或选择特定操作系统分区上可用的特定内核配置。

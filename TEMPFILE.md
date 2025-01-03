@@ -97,7 +97,7 @@ for i in xrange(4096):
 
 
 ---
-![[Pasted image 20241212114601.png]]
+![[Infiniband-arch.png]]
 InfiniBand Software Stack https://www.nminoru.jp/~nminoru/network/infiniband/iba-software-stack.html
 
 

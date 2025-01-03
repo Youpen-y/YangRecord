@@ -4,15 +4,16 @@ Git 进行版本控制时，配置分为三个级别
 - `--local`，仓库级别，仅适用于当前仓库。
 
 ### 配置全局忽略文件 ：其中指定应在所有仓库中忽略的文件模式。
+
 ```bash
 # 创建全局忽略文件
 touch ~/.gitignore_global
-
 # 在全局配置中设置忽略文件
 git config --global core.excludesfile ~/.gitignore_global
 ```
 
 ### 设置代理
+
 ```bash
 # 设置 HTTP 代理
 git config --global http.proxy http://proxy.example.com:8080
@@ -26,13 +27,14 @@ git config --global --unset https.proxy
 ```
 
 ### 设置提交模板
+
 ```bash
 touch ~/.gitmessage.txt
-
 git config --global commit.template ~/.gitmessage.txt
 ```
 
 ### 设置推送行为（默认推送行为，避免意外推送所有分支）
+
 ```bash
 # 设置默认推送当前分支
 git config --global push.default current
@@ -67,6 +69,72 @@ git stash show [-p] stash@{n}
 # 查看具体某个文件的改动
 git stash show [-p] stash@{n} path/to/file
 ```
+
+### `git bisect` - 查找引入错误的提交
+首先确定 `bad` 提交和 `good` 提交，`git bisect` 在亮点之间选择一个提交，要求你确定该提交是 `good` 还是 `bad`，重复该过程直到找到提交。
+```bash
+git bisect start
+git bisect bad						# Current version is bad
+git bisect good v2.6.13.rc2	# v2.6.13.rc2 is known to be good
+```
+
+#### `git commit --amend` - 修改最近的提交
+- 修改提交信息。`git commit --amend -m "new commit msg"
+- 添加遗漏文件后，。
+```bash
+git add forgotten-file 
+git commit --amend
+```
+Note：使用 `--amend` 会改变提交的 `SHA-1` 值，因此在已经推送到远程仓库的分支上使用时要小心。可能会导致其他协作者的仓库出现问题。
+
+#### `git rebase` 
+作用：保持干净且线性的提交历史记录；更新功能分支
+语法
+```bash
+git rebase [-i | --interactive] [options] [--exec cmd] [--onto newbase | --keep-base] [upstream [branch]]
+```
+`rebase` 是将一系列提交移动或组合到新的基提交（base commit）的过程。即将分支的 base 从一个提交更改为另一个提交。
+示例：将 feature 分支变基
+```bash
+git rebase main feature
+# 假如当前分支为 feature , 可使用 git rebase master 获得同样的效果
+# 变基后，main 落后 feature 一个提交通过 git merge 将 feature 中的提交合并到 main 中
+git merge feature 
+```
+
+![[git-rebase.png]]
+
+#### `git tag` 标签
+```bash
+git tag -a v1.0.0 -m "release a tag v1.0.0"
+git push origin v1.0.0
+git push origin --delete v1.0.0
+git push origin --tags 	# 推送所有标签
+```
+- `-a` 表示创建一个附注标签，包含作者信息和日期
+- `-m` 用于添加标签说明
+- `-d` 删除一个标签
+
+#### `git rm`
+`git rm` 命令用于从 Git 仓库中删除文件。该命令可以同时将文件从工作目录和索引（暂存区）中删除。
+```bash
+git rm [options] <file>...
+
+git rm -r directory_name	# 递归删除目录及其内容
+git rm --cached file			# 仅从索引中删除文件，同时保留工作目录中的文件
+```
+
+#### `git revert`
+`git revert` 用于撤销 Git 中某个特定提交的命令。与 `git reset` 不同，`git revert` 会创建一个新的提交，该提交的内容是撤销指定提交的更改。》确保历史记录保持完整，不会丢失其他提交的信息。
+```bash
+git revert HEAD					# 撤销最新的提交
+git revert abc1234				# 撤销特定的提交
+git revert -n HEAD~3..HEAD		# 撤销多个提交
+# 撤销过程中可能会出现冲突，解决完冲突后，
+# 1. 使用 git add . 添加解决后的文件
+# 2. git revert --continue 继续
+```
+
 
 ### `HEAD` 用法
 `HEAD` 简单来说是一个指针，指向当前所在的分支或特定的提交。
