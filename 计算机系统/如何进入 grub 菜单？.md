@@ -8,8 +8,13 @@
 - 选择一个启动项，按 `e` 进入编辑模式
 - 在编辑模式下，可以修改内核启动参数。找到 `linux` 或 `linux16` 开头的内核启动行，在该行末尾添加 `init=/bin/sh` （临时设置）
 - 然后按 `Ctrl+x` 或 `F10` 启动
+- 这种情况下如何退出？
+	- `exec /sbin/init` 恢复正常的启动进程
 选择三、进入 GRUB 命令行
 - 在 GRUB 启动菜单中，按 `c` 键进入 GRUB 命令行界面，这里可以手动输入命令来启动操作系统、修复启动问题等。
+- 这种情况下如何退出？
+	- `reboot`
+
 
 如果希望每次启动时都使用新的启动选项，可以修改 GRUB 配置文件 `/etc/default/grub`。
 - 修改 `GRUB_CMDLINE_LINUX` 来永久添加启动参数。 `GRUB_CMDLINE_LINUX="quiet splash"`
@@ -18,4 +23,4 @@
 
 ---
 当在 GRUB 中使用 `init=/bin/bash` 启动一个 Bash shell 时，系统会跳过常规的 `init` 进程，直接启动一个 shell 。该过程强制用 Bash 来替代传统的初始化进程 `init` ，而 `init` 是 Linux 系统启动过程中的关键进程，负责管理系统的各种服务和进程。
-在这种情况下，使用 `exit` 命令将试图退出当前的 Bash shell 。这将导致 `try to kill init`
+在这种情况下，使用 `exit` 命令将试图退出当前的 Bash shell 。这将导致 `try to kill init` ，因为系统实际上无法找到并结束 `init` 。
