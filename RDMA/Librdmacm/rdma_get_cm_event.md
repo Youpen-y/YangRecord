@@ -103,16 +103,10 @@ struct rdma_conn_param {
 
 ```c
 struct rdma_ud_param {
-
     const void *private_data;
-
     uint8_t private_data_len;
-
     struct ibv_ah_attr ah_attr;
-
     uint32_t qp_num;
-
     uint32_t qkey;
-
 };
 ```

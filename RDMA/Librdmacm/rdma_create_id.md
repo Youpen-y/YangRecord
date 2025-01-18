@@ -20,11 +20,23 @@ int rdma_create_id (struct rdma_event_channel* channel, struct rdma_cm_id **id, 
 用户必须通过调用 `rdma_destroy_id` 释放` rdma_cm_id`。
 
 Port Space
-下述不同 port spaces 提供的服务的详细信息
+下述不同 port spaces 提供的服务的详细信息 
 - `RDMA_PS_IPOIB`：
-- `RDMA_PS_TCP` ：提供可靠的、面向连接的 QP 通信。与 TCP 不同，RDMA port space 提供基于消息而非流的通信。
-- `RDMA_PS_UDP`：提供不可靠、无连接的 QP 通信。支持数据报和多播通信。
+- `RDMA_PS_TCP` ：
+	- 提供可靠的、面向连接（RC）的 QP 通信。
+	- 地址解析需要可靠、有序的数据传输的应用。
+	- 与 TCP 不同，RDMA port space 提供基于消息而非流的通信。
+- `RDMA_PS_UDP`：
+	- 提供可靠无连接（UC）、不可靠无连接（UD）的 QP 通信。
+	- 地址解析通过 IP 地址和端口完成。
+	- 支持数据报和多播通信。
 - `RDMA_PS_IB`：提供任何 IB 服务（UD, UC, RC, XRC等）
+	- 对应 Infiniband 的原生模式
+	- 使用 Infiniband 的 GID 和 LID 进行地址解析
+	- 适用于 Infiniband 原生网络
+- RDMA_PS_IPOIB：
+	- 用于 IP over InfiniBand (IPoIB)
+	- 允许通过 InfiniBand 网路传输 IP 数据。
 
 ```c
 struct rdma_cm_id {

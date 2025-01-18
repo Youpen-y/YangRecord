@@ -59,7 +59,7 @@ struct rdma_event_channel {
 ### RDMA CM EVENT
 ```c
 struct rdma_cm_event {
-    struct rdma_cm_id   *id; // 与事件相关的连接标识符
+    struct rdma_cm_id   *id; 			// 与事件相关的连接标识符
     struct rdma_cm_id   *listen_id; // 监听连接的标识符
     enum rdma_cm_event_type  event; // 事件类型
     int          status;     // 事件状态
@@ -88,6 +88,17 @@ enum rdma_cm_event_type {
     RDMA_CM_EVENT_TIMEWAIT_EXIT       // 退出时间等待状态
 };
 ```
+
+在解析 `rdma_resolve_addr()` 时，如果失败的话，执行 `rdma_get_cm_event()` ，会将 event->id 赋值为用于建连的 id ，`event->listen_id` 置空，随后的 `rdma_ack_cm_event()` 会将 `event->id` 置为 `0x7ffff000b` (无论成功与否)，将 `event->listen_id` 置为 `0x68c6d2602cb5ccd6`（不确定，即一个错误值）， `status` 置为 `-110` 。
+
+
+`rdma_connect` 不能简单地使用 `while(rdma_connect())`，正确的方式是：
+需要释放此前的 `rdma_cm_id` ，重新创建 `rdma_cm_id`。
+
+
+
+
+
 
 ---
 ### Scatter Gather

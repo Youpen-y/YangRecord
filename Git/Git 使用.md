@@ -70,6 +70,27 @@ git stash show [-p] stash@{n}
 git stash show [-p] stash@{n} path/to/file
 ```
 
+### 跟踪远程分支
+```bash
+# 查看远程分支
+git branch -r
+
+# 创建本地分支时设置追踪
+git checkout -b <本地分支名> <远程名>/<远程分支名>
+
+# 设置现有的本地分支追踪远程分支
+git branch --set-upstream-to=<远程名>/<远程分知名> <本地分支名>
+
+# 查看分支的追踪状态
+git branch -vv
+
+# 修改追踪关系
+git branch --set-upstream-to=origin/<新远程分支名> <本地分支名>
+
+# 删除追踪关系，然后删除本地分支
+git branch --unset-upstream
+git branch -d <本地分支名>
+```
 ### `git bisect` - 查找引入错误的提交
 首先确定 `bad` 提交和 `good` 提交，`git bisect` 在亮点之间选择一个提交，要求你确定该提交是 `good` 还是 `bad`，重复该过程直到找到提交。
 ```bash
