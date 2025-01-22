@@ -28,7 +28,7 @@ $ ssh-copy-id username@remote_host
 #### 将公钥复制到没有 `ssh-copy-id` 的服务器
 ```bash
 $ cat ~/.ssh/id_rsa.pub | ssh username@remote_host "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
-```
+```  
 
 ### 登录到具有不同端口的服务器
 ```bash

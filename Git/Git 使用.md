@@ -125,6 +125,15 @@ git merge feature
 
 ![[git-rebase.png]]
 
+#### 删除远程分支
+```bash
+# 方案1
+git push origin --delete <branch_name>
+
+# 方案2
+git push origin :<branch_name>
+```
+
 #### `git tag` 标签
 ```bash
 git tag -a v1.0.0 -m "release a tag v1.0.0"
