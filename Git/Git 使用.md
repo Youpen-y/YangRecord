@@ -262,3 +262,29 @@ git cherry-pick <commit-hash1> <commit-hash2> ...
 # 或使用范围
 git cherry-pick <start-commit>..<end-commit>
 ```
+
+---
+### 更改提交的描述（message）
+1. 更改最新的提交消息（尚未推送到远端）
+```bash
+git commit --amend
+```
+执行该命令后，会打开默认的文本编辑器以便修改提交的消息。修改后，保存并退出编辑器即可。
+2. 更改历史提交的消息（已推送到远端）- `git rebase -i`
+Note：修改历史提交的消息会改变提交的哈希值，因此如果这些提交已经推送到远端，需小心使用，因为可能影响其他协作者的工作。
+步骤1：
+```bash
+git rebase -i HEAD~n
+```
+其中 `n` 是要回溯的提交数量。如，`HEAD~3`表示想修改过去3个提交。
+步骤2：选择修改的提交。运行 `git rebase -i` 后，会打开一个文本编辑器，显示最近 `n` 个提交。每个提交前面都有一个动作指令（`pick`）。找到你要修改消息的提交，把 `pick` 改为 `reword`。
+```bash
+pick e3a1b35 Commit message 1
+reword b4c4c9f Commit message 2 # 修改这个提交的消息 
+pick 9c4d90a Commit message 3
+```
+步骤3：修改提交消息，保存并退出。
+3. 推送更改到远程仓库
+```bash
+git push --force
+```
