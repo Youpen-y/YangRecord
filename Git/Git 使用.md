@@ -40,7 +40,7 @@ git config --global commit.template ~/.gitmessage.txt
 git config --global push.default current
 ```
 
-### `git stash`
+### `git stash` 使用
 ```bash
 # 保存当前工作目录的修改
 git stash save "description info"
@@ -91,6 +91,16 @@ git branch --set-upstream-to=origin/<新远程分支名> <本地分支名>
 git branch --unset-upstream
 git branch -d <本地分支名>
 ```
+
+### 删除远程分支
+```bash
+# 方案1
+git push origin --delete <branch_name>
+
+# 方案2
+git push origin :<branch_name>
+```
+
 ### `git bisect` - 查找引入错误的提交
 首先确定 `bad` 提交和 `good` 提交，`git bisect` 在亮点之间选择一个提交，要求你确定该提交是 `good` 还是 `bad`，重复该过程直到找到提交。
 ```bash
@@ -108,7 +118,7 @@ git commit --amend
 ```
 Note：使用 `--amend` 会改变提交的 `SHA-1` 值，因此在已经推送到远程仓库的分支上使用时要小心。可能会导致其他协作者的仓库出现问题。
 
-#### `git rebase` 
+#### `git rebase` 使用
 作用：保持干净且线性的提交历史记录；更新功能分支
 语法
 ```bash
@@ -125,14 +135,6 @@ git merge feature
 
 ![[git-rebase.png]]
 
-#### 删除远程分支
-```bash
-# 方案1
-git push origin --delete <branch_name>
-
-# 方案2
-git push origin :<branch_name>
-```
 
 #### `git tag` 标签
 ```bash
@@ -287,4 +289,37 @@ pick 9c4d90a Commit message 3
 3. 推送更改到远程仓库
 ```bash
 git push --force
+```
+
+---
+问题：已经将本地提交推送到远端，发现有需要包含的遗漏文件？怎么办？
+解决方案1：
+1. 撤销此次本地提交（保留暂存区和工作区的修改）
+```bash
+git reset --soft HEAD~1
+```
+2.  添加遗漏文件
+```bash
+git add tempfile
+```
+3. 强制推送到远端仓库
+```bash
+git push origin <branch_name> --force
+# git push -f
+```
+
+解决方案2：
+1. 添加遗漏文件到暂存区
+```bash
+git add tempfile
+```
+2. 修改上一次的提交
+```bash
+git commit --ammend
+```
+3. 强制推送到远程仓库
+```bash
+git push origin <branch_name> --force
+# 或简写
+git push -f
 ```
