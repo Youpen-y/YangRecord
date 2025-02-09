@@ -1,9 +1,7 @@
 英伟达 ConnectX InfiniBand 智能网卡最新产品 ConnectX-8 同时支持网络协议 InfiniBand 和 Ethernet，最大带宽 可达800Gb/s 。
 https://nvdam.widen.net/s/pxsjzhgw6j/connectx-datasheet-connectx-8-supernic-3231505
 
-
 充分利用 SMP 特性
-
 
 软件分布式共享内存表现不佳的主要原因是节点之间：带宽低、延迟高。
 
@@ -11,16 +9,15 @@ SDSM 允许用户对集群进行编程，将集群视为一个大型的NUMA（�
 
 –针对不同数据中心可定制化的sDSM
 
-
 Cache 一致性都是为实现某种存储一致性模型而设计的。
 在释放一致性中，一个处理机对共享变量写的新值，其他处理机只有等到该处理机释放锁后才能看到；
 而在顺序一致性中，一个处理机写的值会立刻传播给所有处理机。
 一致性协议：
+
 - 如何传播新值：写使无效与写更新
 - 怎样产生新值：单写协议与多写协议
 - 何时传播新值：及时传播和延迟传播
 - 新值传播到何处：侦听协议与目录协议
-
 
 很多情况下，顺序并不重要（即执行顺序不影响最终结果，对于 `non-mutating` 操作更是如此，非更改操作是指不改变系统状态或正在处理的数据的操作），基于消息的方法可以在这些情况下提供更高的性能。
 —— [Review on "Is It Time to Replace TCP in Data Centers?"](https://blog.ipspace.net/2023/01/data-center-tcp-replacement/#:~:text=While%20the%20order%20of%20execution%20might%20not%20matter%20for%20read%2Donly%20transactions%20with%20no%20side%20effects%2C%20it%E2%80%99s%20crucial%20if%20the%20messages%20cause%20a%20state%20change%20in%20the%20recipient%20application.) 
@@ -31,10 +28,9 @@ Cache 一致性都是为实现某种存储一致性模型而设计的。
 
 内核网络栈，对于大多数负载可以很好地工作，但是对延迟特别敏感的工作负载会受到影响。今天，内核每秒只能转发 1M 到 2M 的数据包，而一些旁路替代方案的速率接近每秒 15M 的数据包。
 
-
-
 示例：
 代码会导致 ABA 问题吗
+
 ```c
 while (1) {
     current_value = atomic_load(&msg_queue->free_count);
@@ -54,6 +50,7 @@ ABA 问题发生情况：
 当线程 A 执行 CAS 操作时，由于值仍然是 var ，即使系统状态在之间发生了变化，它仍然会成功
 
 考虑JIAJIA实现中的情况（实际上是 ABCA）
+
 1. Thread A (main) 读取 `msg_queue->free_count = 1`，即 `current_value = 1`
 2. Thread B (server) 将 `msg_queue->free_count` 从 1 递减至 0 ，break 出循环，原子修改共享变量 tail 
 3. Thread C (client) 将 `msg_queue->free_count` 从 0  递增至 1
@@ -61,11 +58,7 @@ ABA 问题发生情况：
 
 这里发生的 ABCA （ABA变形）并不重要，因为 `tail` 充当了消除歧义的因素，在 BC 中修改的 tail 将会被 A 感知。
 
-
-
 `jia_falloc()` 实现
-
-
 
 平均内存访问时间：
 $$
@@ -75,19 +68,21 @@ $$
 
 缓存有两个主要指标：延迟和命中率。许多次要因素也会影响缓存性能。
 缓存的命中率描述了找到所搜索项目的频率。
+
 - 更高效的替换策略会跟踪更多使用信息，以提高给定缓存大小的命中率。缓存的延迟描述了请求所需项目后，缓存在命中时可以返回该项目的时间。
 - 更快的替换策略通常跟踪较少的使用信息，或者使用直接映射缓存（directed-mapped cache），不跟踪任何信息，以减少更新信息所需的时间。
 - 每个替换策略都是命中率和延迟之间的折中。
-命中率测量通常在基准应用程序上执行，会因应用程序而异。如，视频和音频流应用程序的命中率通常接近于零。
-
+  命中率测量通常在基准应用程序上执行，会因应用程序而异。如，视频和音频流应用程序的命中率通常接近于零。
 
 ---
+
 矩阵相乘（4096X4096）
+
 ```c
 for i in xrange(4096):
-	for j in xrange(4096):
-		for k in xrange(4096):
-			C[i][j] += A[i][k] * B[k][j]
+    for j in xrange(4096):
+        for k in xrange(4096):
+            C[i][j] += A[i][k] * B[k][j]
 ```
 
 ![[Pasted image 20241209142217.png]]
@@ -95,40 +90,46 @@ for i in xrange(4096):
 每个版本都代表了原始Python代码的连续改进。“Running time”是版本的运行时间。“GFLOPS”是版本每秒执行的数十亿次64位浮点运算。“Absolute speedup”是相对于Python的时间，而“Relative speedup”，我们用一个额外的精度数字表示，是相对于前一行的时间。“峰值分数”是相对于计算机峰值835 GFLOPS的GFLOPS。如需详细信息，请参阅方法。
 —— Charles E. Leiserson _et al._ There’s plenty of room at the Top: What will drive computer performance after Moore’s law?._Science_**368**,eaam9744(2020).DOI:[10.1126/science.aam9744](https://doi.org/10.1126/science.aam9744)
 
-
 ---
+
 ![[Infiniband-arch.png]]
 InfiniBand Software Stack https://www.nminoru.jp/~nminoru/network/infiniband/iba-software-stack.html
 
-
 ---
+
 [SECM: Securely and efficiently connections setup using RDMA-CM - ScienceDirect](https://www.sciencedirect.com/science/article/pii/S1389128624003736)
 
 ---
 
 `RDMA` 采用异步队列（`Asynchronous queues`）:
+
 - 数据传输路径由向发送/接受队列中提交工作请求（ `work requests`） 和从完成队列中搜集完成事件驱动。
-> Data path is driven by submitting work requests to send and receive queues and collecting completions from completion queues.
+  
+  > Data path is driven by submitting work requests to send and receive queues and collecting completions from completion queues.
 - 允许计算和通信的高效重叠。
 - 允许通过 `per-CPU queues` 或 `per-thread queues` 支持高效的并行应用。
 
 ---
+
 论文中比较
 网络往返延迟：UDP，IPoIB，UD SEND/RECV
 
 ---
+
 `RDMA` Doorbell Batching 
 每个硬件厂商都会编写自己的底层驱动（如，在 `rdma-core/providers` 下，`mlx4` 实现的
 `mlx4_post_send`, `rxe`实现的 `rxe_post_send` ）
 [mlx4_post_send](https://github.com/linux-rdma/rdma-core/blob/c8517c5df900556735273a1b18e33a025b42870f/providers/mlx4/qp.c#L213)
 
 MMIO 相关文件
+
 - `rdma-core/util/mmio.h`
 - `rdma-core/util/mmio.c`
 
 Doorbell 批处理主要影响通知 `NIC` 有 `work requests` 处理的效率，并不会直接减少网络往返次数。
 Doorbell Ring Operation
 敲门铃操作——通知 `NIC` 工作队列中有新的工作请求。此操作通过将内存映射 I/O （MMIO）写入 NIC 上的特定寄存器来完成的。
+
 - 由于 MMIO 写入，每个 Doorbell Ring Operation 都会产生延迟，这是一个相对昂贵的操作（绕过 CPU 缓存并需要与硬件交互）。
 - 减少门铃响铃操作的数量可以最大限度地减少与这些 MMIO 写入相关的开销，从而提高性能。
 
@@ -136,54 +137,57 @@ Doorbell Batching （门铃批处理——最小化 MMIO 写入开销，侧重�
 通过链接多个工作请求（`work requests`）并在单个批次中发布它们，来减少敲门铃的次数。不必为每个工作请求敲门铃，而是为整个批次敲一次门铃。
 
 示例：
+
 ```c
 struct ibv_recv_wr wr_list[10];
 
 for(int i = 0; i < 10; ++i) {
-	wr_list[i] = create_wr(sge, ...);	// 创建 WR
+    wr_list[i] = create_wr(sge, ...);    // 创建 WR
 }
 
 // 链接 WRs 以便门铃批处理
 for (size_t i = 0; i < 9; ++i) {
-	wr_list[i].next = &wr_list[i+1];
+    wr_list[i].next = &wr_list[i+1];
 }
 
 // 发布一批 WRs
 int ret = ibv_post_recv(qp, &wr_list[0], &bad_wr);
 if (ret != 0) {
-	exit(-1);
+    exit(-1);
 }
 
 // 轮询完成
 struct ibv_wc wc;
 int num_completions = 0;
 while (num_completions < wr_list.size()) {
-	int nc = ibv_poll_cq(cq, 1, &wc);
-	if (nc < 0) {
-		exit(-1);
-	}
-	if (nc > 0) {
-		if (wc.status != IBV_WC_SUCCESS) {
-			exit(-1);
-		}
-		++num_completions;
-	}
+    int nc = ibv_poll_cq(cq, 1, &wc);
+    if (nc < 0) {
+        exit(-1);
+    }
+    if (nc > 0) {
+        if (wc.status != IBV_WC_SUCCESS) {
+            exit(-1);
+        }
+        ++num_completions;
+    }
 }
 ```
 
 ---
+
 论文中绘制 `InfiniBand` QP 的状态机。
 
 在 `InfiniBand` 中，处于 `INIT` 状态的 `QPs` 能发布 `RRs` （Receive Requests）但不能处理。
 
 ---
+
 `Verbs` 中有两种函数：慢路径函数和快路径函数。
+
 - 慢路径函数——与资源（如上下文、保护域和内存区域）的创建和配置相关的函数。由于涉及内核，因此会产生上下文切换的昂贵开销。如 `ibv_open_device()`, `ibv_alloc_pd`，`ibv_reg_mr` _基本上在初始化时完成_
 - 快路径函数——处理操作的启动和完成。由于绕过内核，比慢速路径函数快得多。通信的关键路径主要由快速路径函数组成，偶尔也包含慢速路径函数。
 
-
-
 ---
+
 [Which Queue Pair type to use?](https://www.rdmamojo.com/2013/06/01/which-queue-pair-type-to-use/)
 RDMA UD 模式
 在 RDMA 的 UD 模式中，每个消息必须适合单个请求数据包，而数据包的大小受限于网卡的 MTU （最大传输单元）。如果要传输的数据大于 MTU，需要在应用层或其他协议层自行处理分片和重组。
@@ -194,22 +198,27 @@ RDMA UD 模式
 响应方在收到完整的消息并将数据写入其（本地）内存后，将消息操作视为完成。
 
 解决方案：
+
 - 将 `msg` 大小限制为 $MSG_{size} < MTU$ ，无非是多下发几次消息。
 - 对大消息进行分片重组。
 
 ---
+
 上半年主要在调研 RDMA 技术
+
 - `perftest` 与 `fio` 评测 RDMA 通信与本地 SSD 访问性能访问差异
 - RDMA 相关论文分享与 RDMA 综述汇报
 - 网络编程与RDMA 通信库（`libibverbs` 和 `librdmacm` ）学习
----
-
 
 ---
+
+---
+
 预取的设计与优化
 
 优化前
 机器想要访问非本地页，将触发两次段违例
+
 - 第一次段违例负责向远端发送 GETP(addr，read) 消息，远端返回 addr 对应的页，授予读权限
 - 第二次段违例负责向远端发送 GETP(addr, write) 消息，远端返回 addr 对应的页，授予写权限
 
@@ -226,19 +235,24 @@ RDMA UD 模式
 
 分析：对于局部性强的应用可以减少段违例处理次数，减少与远端的通信次数，但是无效的检查与页拷贝可能增加开销。
 
-优化是一种权衡，优化的效果依赖于具体的应用。
+优化是一种权衡，优化效果依赖于具体应用使权衡的天平更偏向于那边。
 
 ----
+
 系统结构上的优化
+
 - 端口占用上优化（降低端口使用从 $n^2$ 到 $n$）
 - 多线程 `epoll` 替换单线程 `select`
-	- 任务分解（main/server/client/listen）
-	- 任务同步
-	- UDP上层实现确认机制，重传机制
+  - 任务分解（main/server/client/listen）
+  - 任务同步
+  - UDP上层实现确认机制，重传机制
 - 采用事件驱动替换 IO 信号中断驱动
 - 
+
 ---
+
 系统易用性方面的优化
+
 - 增设 `.jiaconf` 文件用于系统配置
 - 自定义的 `.jiahosts` ，不依赖 `/etc/hosts` 进行解析
 - 远端执行环境整理
@@ -246,32 +260,37 @@ RDMA UD 模式
 - 增加日志功能（调试用）与文档注释（维护用）
 
 一些实验性的测试
+
 - 无锁输入输出队列 vs 信号量/锁数据结构
+
 ---
+
 RDMA下 设计实现
 当前每个传输消息的大小是 40960 字节，但
 划分控制消息与数据消息
+
 - 使用 TCP 
 
-
-
 ---
+
 在 InfiniBand 的 UD 模式下，`qkey` 是一个重要的字段，用于访问目标 QP 的权限控制机制。目标 `qkey` 是发送数据时必须设置的参数，表示远程 QP 的队列键（Queue Key）。
 
 QKey 的作用
 
 1. **权限验证**：
-    - 在 UD 模式下，每个 QP 都有一个 `qkey`。
-    - 当发送方尝试向目标 QP 发送数据时，发送方需要提供目标的 `qkey`，接收方会验证发送请求中的 `qkey` 是否与自己的 `qkey` 匹配。
-    - 如果 `qkey` 不匹配，接收方将丢弃该消息。
+   - 在 UD 模式下，每个 QP 都有一个 `qkey`。
+   - 当发送方尝试向目标 QP 发送数据时，发送方需要提供目标的 `qkey`，接收方会验证发送请求中的 `qkey` 是否与自己的 `qkey` 匹配。
+   - 如果 `qkey` 不匹配，接收方将丢弃该消息。
 2. **安全机制**：
-    - `qkey` 是 InfiniBand 的安全机制之一，它确保只有知道目标 `qkey` 的发送方才能发送数据到目标 QP。
-    - 这在共享网络中可以防止未经授权的消息发送。
+   - `qkey` 是 InfiniBand 的安全机制之一，它确保只有知道目标 `qkey` 的发送方才能发送数据到目标 QP。
+   - 这在共享网络中可以防止未经授权的消息发送。
 3. **数据传输的一部分**：
-    - 在 UD 模式下，`qkey` 是消息头的一部分，它通过网络与数据一起发送。
+   - 在 UD 模式下，`qkey` 是消息头的一部分，它通过网络与数据一起发送。
 
 ---
+
 ### 评估
+
 JIAJIA3.0在 Linux 操作系统上使用 C语言实现，核心系统代码 11K行。在？？集群上进行了实验。
 
 UDP vs UDP over IPoIB vs RDMA
