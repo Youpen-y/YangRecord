@@ -428,7 +428,7 @@ $$
 ```
 
 ##### 引用样式
-可参考：[文献引用]([文献样式 · mohuangrui/ucasthesis Wiki](https://github.com/mohuangrui/ucasthesis/wiki/%E6%96%87%E7%8C%AE%E6%A0%B7%E5%BC%8F#%E5%BC%95%E7%94%A8%E6%A0%B7%E5%BC%8F))
+可参考：
 - 著者-出版年
 ```latex
 \usepackage[authoryear,list]{Style/artratex}% 文本: Jones (1995); 括号: (Jones, 1995)
