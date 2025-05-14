@@ -1,7 +1,10 @@
-`xargs` - build and execute command lines from standard iput.
-`xargs` （exteneded arguments）是给命令传递参数的一个过滤器，也是组合多个命令的一个工具。
-`xargs` 可以将管道或标准输入数据转换成命令行参数，也可以从文件的输出中读取数据。
-`xargs` 也可以将单行或多行文本输入转换为其他格式，如多行变单行，单行变多行。
+`xargs` - build and execute command lines from standard input.
+`xargs` （extended arguments），将标准输入转化为命令行参数。
+#### 基本语法
+```bash
+ command | xargs [options] [command]
+```
+
 
 选项
 `-a file` ：从文件中读入作为 `stdin` 。
@@ -20,6 +23,7 @@ Processing fruit:  apple banana cherry
 `-i / -I` ：将 `xargs` 的每项名称，一般是一行一行赋值给 `{}` ，可以用 `{}` 代替。
 ``` shell
 ls | xargs -I {} mv {} /new_directory
+cat filenames.txt | xargs -I {} cp {} /backup/
 ```
 
 `-r no-run-if-empty` ：当 `xargs` 的输入为空的时候则停止 `xargs` ，不用再执行了。
@@ -62,5 +66,20 @@ p q r
 s t u
 v w x
 y z
+```
 
+#### 常用用法示例
+1. 删除多个文件 --- 将当前目录下所有 `.log` 文件名传给 `rm` 命令删除
+```bash
+ls *.log | xargs rm
+```
+
+2. 搭配 `find` 使用
+```bash
+find . -name "*.tmp" | xargs rm -f
+```
+
+3. 限制每次执行的参数数量 --- 每次最多传 2 个参数给 `echo` 
+```bash
+cat files.txt | xargs -n 2 echo
 ```

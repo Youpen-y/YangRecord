@@ -3,6 +3,10 @@ Git 进行版本控制时，配置分为三个级别
 - `--global`，全局级别，适用于当前用户的所有仓库。`~/.gitconfig`
 - `--local`，仓库级别，仅适用于当前仓库。
 
+### 连接本地存储库到GitHub上远程存储库
+```bash
+$ git remote add origin repository-url
+```
 ### 配置全局忽略文件 ：其中指定应在所有仓库中忽略的文件模式。
 
 ```bash
@@ -323,3 +327,47 @@ git push origin <branch_name> --force
 # 或简写
 git push -f
 ```
+
+
+### `git archive`
+将某个提交（`commit`）或分支（`branch`）的内容打包为压缩文件（如 `.zip` 或 `.tar`）。常用于发布源代码或备份特定版本，而不包含 `.git` 目录（即不包含版本历史）。
+
+基本语法：
+```bash
+git archive [options] <commit> [<path>...]
+```
+- `<commit>`：可以是分支名、标签名、commit 哈希值等
+- `<path>`（可选）：只归档指定路径的文件或目录
+- 常用选项
+	- `--format=tar` 或 `--format=zip`：指定压缩格式（默认为 `tar`）
+	- `-o <filename>`：指定输出文件名
+	- `--prefix=<dir>/`：在归档文件中为所有文件加上前缀目录名
+
+
+常见示例：
+1. 打包主分支为 `tar` 文件
+```bash
+git archive --format=tar --output=project.tar main
+```
+2. 打包标签 `v1.0` 为 `zip` 文件
+```bash
+git archive --format=zip --output=project.zip v1.0
+```
+3. 只打包某个子目录
+```bash
+git archive -o src-only.zip HEAD src/
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

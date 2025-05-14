@@ -1,4 +1,6 @@
-`pkg-config` - 返回已安装库的元信息（metainformation）
+`pkg-config` - 返回已安装库的元信息（meta information）
+
+作为编译应用程序和库的辅助工具，可帮助在命令行中插入正确的编译器选项，以便应用程序可以使用 `gcc -o test test.c $(shell pkg-config --libs --cflags glib-2.0)` 等参数，而无需硬编码 `glib` （或其他库）的路径。它与语言无关，因此可以用来定义文档工具的位置。
 
 主要用于检索系统中已安装库的信息，通信用于编译和链接一个或多个库。
 功能：
@@ -13,6 +15,7 @@
 	- `/usr/share/pkgconfig/`
 	- `/usr/local/lib/pkgconfig/`
 	- 通过 `PKG_CONFIG_PATH` 指定的自定义目录
+- `pkg-config` 通过读取以 `.pc` 为后缀的配置文件获取关于已安装库的信息。
 一个`example.pc`示例
 ```ini
 prefix=/usr/local

@@ -49,3 +49,27 @@ version = 3.12.3
 executable = /usr/bin/python3.12
 command = /usr/bin/python3 -m venv /home/yongy/Notes/python-exercises/.venv
 ```
+
+#### Windows 上使用 `venv` 模块创建虚拟环境
+
+1. `venv` 模块用于创建虚拟环境
+```powershell
+D:\MSYS2\mingw64\bin\python.exe -m venv myenv 
+```
+在当前目录下创建一个名为 `myenv` 的文件夹，该文件夹包含一个独立的 python 环境。
+
+2. 设置脚本执行策略
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+3. 激活虚拟环境
+```powershell
+.\myenv\bin\activate
+```
+
+4. 在虚拟环境中安装 `ipykernel`
+```powershell
+# python.exe -m pip install --upgrade pip  # 可能需要升级 pip
+pip install ipykernel
+```
