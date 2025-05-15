@@ -7,7 +7,7 @@
 * struct inode 结构的起始
 */
 struct inode {
-	umode_t i_mode;
+	umode_t i_mode;    // 类型 + 权限 + 特殊位
 	unsigned short i_opflags;
 	kuid_t i_uid;
 	kgid_t i_gid;
@@ -132,6 +132,7 @@ void *i_private; /* fs or device private pointer */
 ```
 
 解析：
+#### 首部注释
 ```c
 /*
 * Keep mostly read-only and often accessed (especially for
@@ -148,3 +149,75 @@ void *i_private; /* fs or device private pointer */
 将最常访问且大部分只读的字段放在结构体的开头，好处如下：
 - 缓存局部性：现代 CPU 都有多级缓存（L1, L2, L3）。当 CPU 访问内存时，它通常会一次性将一块数据（称为“缓存行”或“缓存块”，通常是 64 字节）从主内存加载到缓存中。如果经常访问的字段都紧密地排列在结构体的开头，那么当一个字段被访问时，其他也经常访问的字段很可能已经被预取到同一个缓存行中。这样可以大大减少缓存未命中（cache miss）的概率，从而提高数据访问速度。
 - 减少缓存行抖动/争用：如果可写字段（即经常被修改的字段）与只读字段在同一个缓存行中，那么当这个可写字段被修改时，即使只读字段没有变化，整个缓存行也会被标记为“脏”（dirty），需要被写回主内存或者在多个 CPU 核心之间进行同步（如果其他核心也有这个缓存行的副本）。这会导致所谓的“缓存行抖动”（cache line bouncing）或“伪共享”（false sharing），从而降低性能。将只读字段与可写字段分开，尤其将只读字段放在前面，可以使得只读字段所在的缓存行更稳定，减少不必要的缓存同步开销。
+---
+#### `i_mode` —— 决定文件类型与访问权限
+`i_mode` 是 `inode` 结构中一个 16 位（有些系统是 32 位）字段，主要用于存储
+1. 权限位（`rwx` 权限）
+2. 特殊位（如 `SUID`，`SGID`，Sticky 位）
+3. 文件类型（如普通文件、目录、符号链接等）
+
+前 9 位`[0-8]`描述了：其他、组和所有者的权限
+```mathematica
+bits:  |   0   1   2   |       |   3   4   5   |       |   6   7   8   |
+others:|   x   w   r   | group:|   x   w   r   | owner:|   x   w   r   |
+```
+
+中间 3 位 `[9-11]` 是特殊位
+```mathematica
+bits:  |         9           10          11         |
+       |    Sticky bits     Set GID     Set UID     |
+```
+
+后面 4 位 `[12-15]` 指定文件类型
+```
+0001    FIFO（管道）
+0010    Character device（字符设备）
+0100    Directory（目录）
+0110    Block device（块设备）
+1000    Regular file（普通文件）
+1010    Symbolic link（符号链接）
+1110    Socket（套接字）
+```
+
+定义：
+```c
+#define S_IFMT  00170000        // file format
+#define S_IFSOCK 0140000        // socket
+#define S_IFLNK	 0120000        // symbolic link
+#define S_IFREG  0100000        // regualar file
+#define S_IFBLK  0060000        // block device
+#define S_IFDIR  0040000        // directory
+#define S_IFCHR  0020000        // character device
+#define S_IFIFO  0010000        // fifo
+
+// special bits
+#define S_ISUID  0004000        // set UID
+#define S_ISGID  0002000        // set GID
+#define S_ISVTX  0001000        // sticky bits
+
+#define S_ISLNK(m)	(((m) & S_IFMT) == S_IFLNK)
+#define S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
+#define S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
+#define S_ISCHR(m)	(((m) & S_IFMT) == S_IFCHR)
+#define S_ISBLK(m)	(((m) & S_IFMT) == S_IFBLK)
+#define S_ISFIFO(m)	(((m) & S_IFMT) == S_IFIFO)
+#define S_ISSOCK(m)	(((m) & S_IFMT) == S_IFSOCK)
+
+// user
+#define S_IRWXU 00700
+#define S_IRUSR 00400
+#define S_IWUSR 00200
+#define S_IXUSR 00100
+
+// group
+#define S_IRWXG 00070
+#define S_IRGRP 00040
+#define S_IWGRP 00020
+#define S_IXGRP 00010
+
+// other
+#define S_IRWXO 00007
+#define S_IROTH 00004       // others may read
+#define S_IWOTH 00002       // others may write
+#define S_IXOTH 00001       // others may execute
+```
