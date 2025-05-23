@@ -54,3 +54,6 @@ RDMA 通信栈
 为什么不使用 OpenMPI 作为后端
 OpenMPI 的依赖太多（如PMIx和UCX），其中对版本匹配有较高要求，可移植性并没有那么强。
 UCX 并不支持 UDP 通信。
+
+
+
