@@ -29,6 +29,20 @@ pip uninstall package_name
 ### 查看模块详细信息
 ```bash
 pip show package_name
+
+# 或 python -m pip show package_name
+pip show pypdf
+Name: pypdf
+Version: 5.5.0
+Summary: A pure-python PDF library capable of splitting, merging, cropping, and transforming PDF files
+Home-page: 
+Author: 
+Author-email: Mathieu Fenniak <biziqe@mathieu.fenniak.net>
+License: 
+Location: /home/yongy/.pyenv/versions/3.13.3/lib/python3.13/site-packages
+Requires: 
+Required-by: 
+
 ```
 
 ### 查找模块

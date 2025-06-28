@@ -1,5 +1,7 @@
+`apt-get` —— APT 包处理程序 -- 命令行接口
 
-
+#### `apt-get upgrade`
+`apt-get upgrade [package_name]` —— 用于安装系统上已安装的包的最新版本。当后面跟有 `package_name` 时，会在更新前安装该 `package_name` 包。
 
 #### `apt-get source` 或 `apt source`
 `apt-get source` —— 用于获取源代码，在当前目录下创建源代码目录。

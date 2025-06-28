@@ -1,3 +1,4 @@
+`dmesg` - print or control the kernel ring buffer
 `dmesg` —— 显示从内核环形缓冲区（kernel ring buffer）检索到的内核相关消息。环形缓冲区在系统启动期间存储有关硬件、设备驱动程序初始化和内核模块消息的信息。
 
 > 内核将其日志保存在环形缓冲区中。
@@ -17,6 +18,9 @@ dmesg [options]
 - `-l, --level [list]` ，将输出限制为指定的逗号分隔级别列表
 - `-S, --syslog` ，指示 `dmesg` 使用 `syslog` 内核接口读取内核消息。默认使用 `/dev/kmsg` 而非 `syslog`
 - `-w, --follow`，保持 `dmesg` 运行并等待新消息，该功能仅在具有可读 `/dev/kmsg` 文件的系统上可用。
+- `-W, --follow-new`，等待并只打印新消息
+- `-k, --kernel`，打印内核消息
+- `-T, --ctime`，打印人-可读的时间戳
 
 #### 示例
 1. 选择时间戳格式（`ctime`, `reltime`, `delta`, `notime`）
@@ -49,6 +53,9 @@ sudo dmesg -f syslog,daemon
 - `debug` 调试级消息
 ```bash
 sudo dmesg -l info
+
+# sudo dmesg --level=err+       # 打印 err, crit, alert, emerg
+# sudo dmesg --level=err,warn   # 只打印错误和警告消息
 ```
 
 4. 结合设备和 Level

@@ -131,6 +131,8 @@ void *i_private; /* fs or device private pointer */
 } __randomize_layout;
 ```
 
+^307909
+
 解析：
 #### 首部注释
 ```c
@@ -166,6 +168,33 @@ others:|   x   w   r   | group:|   x   w   r   | owner:|   x   w   r   |
 ```mathematica
 bits:  |         9           10          11         |
        |    Sticky bits     Set GID     Set UID     |
+```
+- Set UID（`SUID`），如果可执行文件设置了该位，程序在执行时将“暂时获得”文件所有者的身份和权限，而不是使用执行者自己的权限。
+示例：
+```bash
+yongy@surge:~$ ls -l /usr/bin/passwd 
+-rwsr-xr-x 1 root root 64152 May 30  2024 /usr/bin/passwd
+```
+程序 `passwd` 所有者是 `root`，当以用户 `yongy` 身份执行 `passwd` 时，由于设置了 `SUID` ，会“临时、受控”提权，以 `root` 身份运行 `passwd` 。
+```bash
+chmod 4755 myprog   # 设置 SUID
+```
+
+- Set GID（`SGID`），如果可执行文件设置了 `SGID` ，进程运行时会以该文件所属组的权限执行；如果目录设置了 `SGID` ，新建的文件或子目录会继承该目录的组而不是当前用户的默认组。
+```bash
+chmod g+s mydir
+ls -ld mydir
+drwxrwsr-x 2 yongy yongy 4096 Jun 28 19:58 mydir/
+```
+
+- Sticky Bit ，设置了 Sticky Bit 的目录中，只有文件的所有者、目录的所有者或 root 才能删除或重命名其中的文件。
+```bash
+yongy@surge:~$ ls -ld /tmp
+drwxrwxrwt 34 root root 12288 Jun 28 20:01 /tmp
+         *
+        某尾的 t 表示 Sticky Bit 被设置
+
+chmod 1755 mydir    # 设置 Sticky Bit
 ```
 
 后面 4 位 `[12-15]` 指定文件类型
