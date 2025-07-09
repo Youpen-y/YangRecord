@@ -1,8 +1,7 @@
-Git 进行版本控制时，配置分为三个级别
+Git 进行版本控制时，配置分为三个级别 ^3f1ed4
 - `--system`，系统级别，适用于系统上所有用户和仓库，`/etc/gitconfig`
 - `--global`，全局级别，适用于当前用户的所有仓库。`~/.gitconfig`
-- `--local`，仓库级别，仅适用于当前仓库。
-
+- `--local`，仓库级别，仅适用于当前仓库，`.git/config`。
 ### 连接本地存储库到GitHub上远程存储库
 ```bash
 $ git remote add origin repository-url
