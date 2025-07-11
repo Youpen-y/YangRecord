@@ -156,7 +156,10 @@ git push origin --tags 	# 推送所有标签
 git rm [options] <file>...
 
 git rm -r directory_name	# 递归删除目录及其内容
-git rm --cached file			# 仅从索引中删除文件，同时保留工作目录中的文件
+
+# 在命令行中不小心将 file 加入了暂存，如果撤销
+git rm --cached file		# 仅从索引中删除文件，同时保留工作目录中的文件
+git rm -f file              # 从索引中删除文件，并且不保留工作目录中的文件
 ```
 
 #### `git revert`
