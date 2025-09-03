@@ -177,6 +177,7 @@ pyenv virtualenv <python_version> <environment_name>
 示例：
 ```shell
 pyenv virtualenv 3.13.3 myproject
+# pyenv virtualenv 3.13.3 .venv
 ```
 
 激活版本

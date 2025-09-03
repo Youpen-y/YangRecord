@@ -1,6 +1,11 @@
 `pip` （Package Installer for Python） 是 Python 的官方包管理工具，用于安装、升级、卸载和管理 Python 包或模块。
 使用 `pip` ，可以从 `Python Package Index`[PyPI](https://pypi.org/)
 
+### 更新 `pip`
+```bash
+python -m pip install --upgrade pip
+```
+
 ### 安装模块/包
 ```bash
 pip install package_name
@@ -14,6 +19,7 @@ pip install package_name=VERSION
 ### 升级 `package_name`
 ```bash
 pip install --upgrade package_name
+# pip install --upgrade pip # 升级 pip
 ```
 
 ### 查看已安装的模块
@@ -42,10 +48,9 @@ License:
 Location: /home/yongy/.pyenv/versions/3.13.3/lib/python3.13/site-packages
 Requires: 
 Required-by: 
-
 ```
 
-### 查找模块
+### 查找模块 
 ```bash
 pip search package_name
 ```

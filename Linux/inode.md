@@ -160,14 +160,14 @@ void *i_private; /* fs or device private pointer */
 
 前 9 位`[0-8]`描述了：其他、组和所有者的权限
 ```mathematica
-bits:  |   0   1   2   |       |   3   4   5   |       |   6   7   8   |
-others:|   x   w   r   | group:|   x   w   r   | owner:|   x   w   r   |
+bits:  |   8   7   6   |       |   5   4   3   |       |   2   1   0   |
+owner :|   r   w   x   | group:|   r   w   x   |others:|   r   w   x   |
 ```
 
 中间 3 位 `[9-11]` 是特殊位
 ```mathematica
-bits:  |         9           10          11         |
-       |    Sticky bits     Set GID     Set UID     |
+bits:  |         11          10          9          |
+       |      Set UID      Set GID    Sticky bits   |
 ```
 - Set UID（`SUID`），如果可执行文件设置了该位，程序在执行时将“暂时获得”文件所有者的身份和权限，而不是使用执行者自己的权限。
 示例：

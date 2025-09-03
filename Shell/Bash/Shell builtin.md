@@ -320,3 +320,71 @@ $ trap -l
 12) SIGRTMAX-6	59) SIGRTMAX-5	60) SIGRTMAX-4	61) SIGRTMAX-3	62) SIGRTMAX-2
 13) SIGRTMAX-1	64) SIGRTMAX	
 ```
+
+#### `exec`
+`exec` 常用来替换当前 shell 进程，或者改变文件描述符。
+
+语法：
+```bash
+exec [-cl] [-a name] [command [argument ...]] [redirection ...]
+```
+使用给定的 `command` 的替换 shell ：执行 `command` ，使用指定的程序替换 shell 。`argument` 成为 `command` 的参数。
+如果 `command` 未指定，改变当前 shell 的文件描述符。
+选项：
+- `-a name`：将 `name` 作为第 0 个参数传递给 `command`
+- `-c`：使用空环境（empty environment）执行 `command`，不传递当前的环境变量
+```bash
+exec -c env
+# 执行 env ，但环境变量被清空，不会输出任何变量
+```
+- `-l`：在 `command` 的 `argv[0]` 前加 dash （连字符），模拟“登录 shell”的效果
+如果在非交互式 shell （如脚本）中使用 `exec` 执行命令失败了（如命令不存在），那么 shell 会立即退出。除非设置了 shell 选项 `execfail`。
+```bash
+shopt -s execfail
+exec no-such-command    # 将执行失败
+echo "This *will* run"  # 继续执行
+```
+
+返回值：
+返回成功；除非 `command` 未发现或发生重定向错误。
+
+常见用例：
+1. 用其他命令替换当前 shell 
+```bash
+exec command [arguments...]
+```
+使用 `command` 替换掉当前的 bash shell 进程，不会启动新的子进程。
+底层机制：
+```bash
+# 普通执行流程
+shell进程 -> fork() -> 子进程执行ls -> 子进程结束 -> 回到shell
+
+# exec执行流程
+shell进程 -> execve() -> 直接变成ls进程 -> ls结束 -> 终端会话结束
+```
+实际用途——脚本中的最后命令
+```bash
+#!/bin/bash
+echo "准备启动程序..."
+# 使用 exec 启动主程序，节省内存
+exec /usr/bin/myprogram
+```
+
+
+2. 重定向文件描述符（常用于高级 I/O）
+```bash
+exec fd>file
+exec fd<file
+```
+改变当前 shell 的文件描述符，使得后续命令的输入输出被永久重定向。
+- 永久将 `stdout` 重定向到文件
+```bash
+exec > output.txt
+echo "This goes into output.txt"
+```
+- 打开文件描述符供后用
+```bash
+exec 3> mylog.txt       # 打开文件用于写 fd = 3
+echo "Log entry" >&3    # 把内容写入 fd = 3 指向的文件
+exec 3>&-               # 关闭 fd = 3
+```

@@ -14,7 +14,6 @@ touch ~/.gitignore_global
 # 在全局配置中设置忽略文件
 git config --global core.excludesfile ~/.gitignore_global
 ```
-
 ### 设置代理
 
 ```bash
@@ -28,7 +27,6 @@ git config --global https.proxy https://proxy.example.com:8080
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
-
 ### 设置提交模板
 
 ```bash
@@ -104,12 +102,42 @@ git push origin --delete <branch_name>
 git push origin :<branch_name>
 ```
 
+### `git merge` - 合并分支
+把两条（或多条）开发历史合并成一条新的历史。将指定分支上的全部提交，按时间顺序“折叠”到当前分支的最新快照之后，并生成一个新的“合并提交”（merge commit）。
+```bash
+# 1. 切换到目标分支
+git checkout main
+
+# 2. 合并功能分支
+git merge feature/login
+```
+执行 `git merge` 可能出现三种结果：
+- `Fast-forward`：目标分支属于功能分支的直系后代——HEAD 直接前移，不产生新的合并提交
+- 自动合并成功，产生一个“有两个父提交”的合并提交
+- 冲突（需人工解决）
+选项：
+- `--no-ff` （禁用 `Fast-forward`）：即使目标分支是功能分支的直系后代，也强制生成合并提交，保留“曾经存在过功能分支”的信息
+- `--squash`：把功能分支上的所有提交压缩为一个提交，不保留原分支历史。
+- `--abort`：合并冲突时想放弃，可退回 `merge` 前的状态。
+
 ### `git bisect` - 查找引入错误的提交
 首先确定 `bad` 提交和 `good` 提交，`git bisect` 在亮点之间选择一个提交，要求你确定该提交是 `good` 还是 `bad`，重复该过程直到找到提交。
 ```bash
+# 开始二分查找
 git bisect start
-git bisect bad						# Current version is bad
-git bisect good v2.6.13.rc2	# v2.6.13.rc2 is known to be good
+
+# 标记一个已知有该功能的提交
+git bisect good <commit_hash>
+
+# 标记一个已知没有该功能的提交  
+git bisect bad <commit_hash>
+
+# Git 会自动切换到中间的提交，测试后标记
+git bisect good  # 如果有该功能
+git bisect bad   # 如果没有该功能
+
+# 重复直到找到引入该功能的确切提交
+git bisect reset  # 完成后重置
 ```
 
 #### `git commit --amend` - 修改最近的提交
@@ -123,6 +151,8 @@ Note：使用 `--amend` 会改变提交的 `SHA-1` 值，因此在已经推送�
 
 #### `git rebase` 使用
 作用：保持干净且线性的提交历史记录；更新功能分支
+> 嘿，你知道在那条完全不同的时间线上发生的事情吗? 我希望你假装它们发生在这里。
+
 语法
 ```bash
 git rebase [-i | --interactive] [options] [--exec cmd] [--onto newbase | --keep-base] [upstream [branch]]
@@ -131,16 +161,21 @@ git rebase [-i | --interactive] [options] [--exec cmd] [--onto newbase | --keep-
 示例：将 feature 分支变基
 ```bash
 git rebase main feature
-# 假如当前分支为 feature , 可使用 git rebase master 获得同样的效果
-# 变基后，main 落后 feature 一个提交通过 git merge 将 feature 中的提交合并到 main 中
-git merge feature 
+# 假如当前分支为 feature , 可使用 git rebase main 获得同样的效果
+# 变基后，main 落后 feature 一个或多个提交，通过 git merge 将 feature 中的提交合并到 main 中
+git merge feature   # 移动 main 的 HEAD
 ```
 
 ![[git-rebase.png]]
 
+何时进行 `rebase` ？何时进行 `merge`？
+不要使用 `rebase` 的情况：
+1. 如果分支是公开的，并且与其他人共享，那么重写公开共享的分支往往会给团队的其他成员带来麻烦。
+2. 当提交分支的准确历史记录很重要时
 
 #### `git tag` 标签
 ```bash
+git tag <tagname> <commit-id>
 git tag -a v1.0.0 -m "release a tag v1.0.0"
 git push origin v1.0.0
 git push origin --delete v1.0.0
@@ -158,8 +193,14 @@ git rm [options] <file>...
 git rm -r directory_name	# 递归删除目录及其内容
 
 # 在命令行中不小心将 file 加入了暂存，如果撤销
-git rm --cached file		# 仅从索引中删除文件，同时保留工作目录中的文件
-git rm -f file              # 从索引中删除文件，并且不保留工作目录中的文件
+git rm --cached <file>		# 停止跟踪 file，仅从索引中删除文件，同时保留工作目录中的文件
+git rm -f <file>              # 从索引中删除文件，并且不保留工作目录中的文件
+```
+
+#### `git restore`
+`git restore` 用于恢复工作树（Working tree）文件。
+```bash
+git restore --staged <file> # 撤销 git add <file> 操作
 ```
 
 #### `git revert`
@@ -212,6 +253,11 @@ git diff <from>..<to>
 其中 `<from>` 和 `<to>` 可以是 `HEAD` ，`SHA 前缀`，分支名。
 
 #### 三种版本回退的差异
+`git reset` - 将当前 HEAD 重置为特定的状态
+```bash
+# 将当前分支头（HEAD） 设置为 <commit>
+git reset [--soft | --mixed [-N] | --hard | --merge | --keep] [-q] [<commit>]
+```
 `git reset HEAD~1` 默认是 `--mixed` 模式
 - 撤销 commit
 - 撤销暂存区的修改至工作区
@@ -259,6 +305,15 @@ git branch -d temp
 ```
 
 - `git cherry-pick`
+用于当希望在分支 `test` 提交时，而不小心在 `main` 分支提交。
+```bash
+git checkout test
+git cherry-pick <commit-ID> # commit-ID 指向在 main 分支上的提交
+git checkout main
+git reset --hard HEAD^  # 移除 main 分支上的提交
+```
+
+其他用法：从 `test` 分支上选取提交，合并到 `main` 上
 ```bash
 # 1. 确认哪些提交包含了成熟的技术
 git checkout test
@@ -270,6 +325,8 @@ git cherry-pick <commit-hash1> <commit-hash2> ...
 # 或使用范围
 git cherry-pick <start-commit>..<end-commit>
 ```
+
+> `rebase` 是在另一个分支上 `cherry-pick` 了一系列提交。
 
 ---
 ### 更改提交的描述（message）

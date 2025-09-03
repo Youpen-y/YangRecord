@@ -1,3 +1,5 @@
+> A locale is a set of language and cultural rules. These cover aspects such as language for messages, different character sets, lexicographic conventions, and so on. A program needs to be able to determine its locale and act accordingly to be portable to different cultures.
+
 Locale environment variables （区域环境变量）告诉 OS 如何显示或输出某些类型的文本。
 
 ```bash
@@ -38,14 +40,14 @@ LANG=zh_CN.utf8
 
 2. `LC_xxx` - 
 - `LC_ALL`：优先于所有其他 `LC_*` 变量和 `LANG` 。如果设置了 `LC_ALL`，则其值将用于所有语言环境类别。
-- `LC_CTYPE`：定义字符分类和大小写转换规则。包括哪些字符被视为字母、数字或标点符号，以及如何转换大小写字符。它还影响字符编码
-- `LC_NUMERIC`：控制非货币数值的格式，小数分隔符、千位分隔符和数字分组（以 `.` 或 `,` 分隔）
+- `LC_CTYPE`：定义字符分类和大小写转换规则。包括哪些字符被视为字母、数字或标点符号，以及如何转换大小写字符。它还影响字符编码。
+- `LC_NUMERIC`：控制非货币数值的格式，小数分隔符、千位分隔符和数字分组（以 `.` 或 `,` 分隔）。
 - `LC_TIME`：指定日期和时间的格式。包括日、月、年的顺序、星期和月份的名称以及 12 小时制或 24 小时制。
 - `LC_COLLATE`：确定用于比较和排序字符串的排序顺序。
 - `LC_MONETARY`：定义货币值的格式。包括货币符号、其位置、小数点分隔符以及千位分隔符。
 - `LC_MESSAGES`：控制应用程序和 `shell` 中信息性消息和诊断消息的语言和格式。
 - `LC_PAPER`：指定默认纸张尺寸。
-- `LC_NAME`：定义名称的格式。
+- `LC_NAME`：定义姓名的格式。
 - `LC_ADDRESS`：定义地址的格式。
 - `LC_TELEPHONE`：定义电话号码的格式。
 - `LC_MEASUREMENT`：指定测量单位（如公制或英制）。
@@ -61,7 +63,7 @@ LANG=zh_CN.utf8
 language[_territory][.encoding][@modifier]
 ```
 - `language`：两个字母的 ISO 639-1 语言代码（如 `en`, `fr`, `zh`）
-- `_territory`：ISO 3166-1 国家/地区代码（`_US` 代表美国，`_CA` 代表加拿大）
+- `_territory`：ISO 3166-1 国家/地区代码（`_US` 代表美国，`_CA` 代表加拿大，`_CN` 表大陆地区）
 - `.encoding`：可选的字符编码（`.UTF-8`）。
 - `@modifier`：特定变体的可选修饰符（例如，`@euro` 表示使用欧元货币的地区）
 
@@ -75,9 +77,56 @@ cat /etc/locale.conf
 # sudo localectl set-locale LANG=en_IN.UTF-8
 ```
 
-
+`locale` 定义文件的默认路径：`/usr/share/i18n/locales`
 显示 `Linux` 或类`Unix`系统上所有可用的语言环境
 ```bash
-locale -a
+$ locale -a
+C
+C.utf8
+en_AG
+en_AG.utf8
+en_AU.utf8
+en_BW.utf8
+en_CA.utf8
+en_DK.utf8
+en_GB.utf8
+en_HK.utf8
+en_IE.utf8
+en_IL
+en_IL.utf8
+en_IN
+en_IN.utf8
+en_NG
+en_NG.utf8
+en_NZ.utf8
+en_PH.utf8
+en_SG.utf8
+en_US.utf8
+en_ZA.utf8
+en_ZM
+en_ZM.utf8
+en_ZW.utf8
+POSIX
+zh_CN.utf8
+zh_SG.utf8
 ```
 也可以通过 `less /usr/share/i18n/SUPPORTED` 查看所有支持的语言环境的列表。
+
+- `C`：标准的 C locale 。它提供的属性和行为在 ISO C 标准中指定。程序启动时，默认使用此语言环境。
+- `POSIX`：标准 POSIX locale，目前是标准 C locale 的别名。
+- ""：空名称表示根据环境变量选择语言环境。
+```bash
+setlocale(LC_ALL, "");  // 使用用户的环境变量指定的 locale
+```
+
+指定国际化程序在 C locale 中运行：
+1. 取消设置所有 locale 环境变量，在 C locale 中运行应用程序。
+```bash
+$ unset LC_ALL LANG LC_CTYPE LC_COLLATE LC_NUMERIC LC_TIME LC_MONETARY LC_MESSAGES
+```
+2. 将语言环境明确设置为 C 或 POSIX
+```bash
+$ export LC_ALL=C       # export LC_ALL=POSIX
+$ export LANG=C
+```
+某些应用程序会检查 LANG 环境变量，而无需实际调用 `setlocale` 来引用当前语言环境。

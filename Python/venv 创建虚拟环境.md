@@ -1,12 +1,12 @@
 `python` 虚拟环境允许单独管理不同项目的依赖关系，防止冲突并保持更清晰的设置。
 - `python` 的 `venv` 模块
-- 
 
 可以创建使用不同版本库或 Python 本身的隔离环境。
 
 1. 创建 `.venv` 虚拟环境
 ```bash
 python -m venv .venv/
+python -m venv .venv/ --system-site-packages    # 创建虚拟环境时允许访问系统已安装的包
 ```
 
 2. 激活虚拟环境

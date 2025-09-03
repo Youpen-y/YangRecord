@@ -1,13 +1,35 @@
 ![[C 编译步骤]]
 
+`makefile` 由规则（rules）组成。
 ### `rules` - 规则语法
 ```
-targets: prerequisites
-    command
-    command
+targets: prerequisites...
+    recipe
+    ...
 ```
+`targets`（目标）：通常是程序生成文件的名称，如可执行文件或目标文件。也可以是要执行的操作的名称，如 `clean`、`install`。
+`prerequisites`（先决条件）：用于创建目标的输入文件。
+`recipe`（配方）：是 `make` 执行的操作。一个配方可以包含多个命令，它们可以位于同一行，也可以各自占一行。注意：每个配方行的开头需添加一个制表符。
+>[!NOTE]
+>通常，recipes 包含在带有先决条件的规则中，用于在任何先决条件发生变化时创建目标文件。
+>但是，为目标指定配方的规则并不一定需要先决条件。例如，目标 `clean` 关联删除命令，但整个规则没有先决条件。
 
----
+当目标是文件时，如果其任何先决条件发生变化，则需要重新执行配方（编译或链接该文件）。此外，任何自动生成的先决条件都应先更新。
+```makefile
+.bar:
+    @echo "This won't be executed by default"
+
+./.foo/bar: hello
+    @echo "First is hello, then this"
+
+hello:
+    @echo "Hello World"
+```
+```bash
+$ make
+Hello World
+First is hello, then this
+```
 
 ### `variables` 赋值：`:= / =`
 ```
@@ -18,7 +40,7 @@ some_file : $(files)
 其中引用变量  `$(var)` 等价于 `${var}` 。
 
 ---
-### 自动变量
+### 自动变量（automatic variables）
 `$@` - 引用 target
 `$?` - 所有比 target 更新的 prerequisites
 `$^` - 所有 prerequisites 
@@ -60,13 +82,15 @@ obj1 obj2:
 ---
 ### Wildcard - 通配符
 #### `*` - 在文件系统中搜索匹配的文件名，和 `wildcard` 函数一同使用 。
-> 注意： `*` 不能直接用于变量定义中
+> 注意： `*` 不能直接用于变量定义中，如：`SRCS = *.c` 在变量赋值时，不会自动展开。正确用法是 `SRCS = $(wildcard *.c)` 。
 
 wildcard 函数基本语法（其中pattern... 是一个或多个文件名模式）
 ```make
 $(wildcard patterns...)
 ```
+此字符串可在 `Makefile` 的任何地方使用，它将被替换为以空格分隔的、与给定文件名模式之一匹配的现有文件名列表。如果没有现有文件名与模式匹配，则 `wildcard` 的输出中将忽略该模式。
 
+与规则中的通配符扩展一样，`wildcard` 函数的结果是有序的。如 `$(wildcard *.c *.h)` 将扩展为 `.c` 匹配的所有文件（已排序），然后是与 `.h` 匹配的所有文件（已排序）。
 ##### 示例1：
 目录下，包含如下文件
 ```bash
@@ -98,8 +122,57 @@ HEADERS := $(wildcard include/*.h)
 ```
 CPP_SOURCES := $(wildcard **/*.cpp)
 ```
+---
+`vpath` —— 用于指定 `Makefile` 在查找依赖文件（如源文件）时的搜索路径。类似于 shell 中的 `$PATH` 环境变量。
+语法：
+```makefile
+vpath <pattern> <directories> # 指定匹配模式的文件名的搜索路径目录
+vpath <pattern>               # 清除与模式相关的搜索路径
+vpath                         # 清楚先前使用 vpath 指令指定的所有搜索路径 
+```
+- `<pattern>`：文件名通配符，如 `%.c`，`main.h`
+- `<directories>`：用空格分隔的目录路径列表，`make` 会在这些目录中查找匹配的文件
+示例1：通配符查找 `.c` 文件
+```makefile
+vpath %.c src
 
+objs = foo.o bar.o
 
+all: $(objs)
+    $(CC) -o myapp $(objs)
+
+%.o: %.c
+    $(CC) -c $< -o $@
+```
+- `vpath %.c src`：告诉 Make 如果在当前目录找不到 `foo.c`，`bar.c`，请到 `src/` 目录里找。
+
+示例2：查找特定头文件
+```makefile
+vpath defs.h include
+
+main.o: main.c defs.h
+    $(CC) -c main.c
+```
+
+示例3：多个目录查找
+```makefile
+vpath %.h include common/include
+vpath %.c src utils
+```
+
+示例4：兜底规则（需要找任何文件，从目录 `dir/` 中查找）。但是不会在子目录中递归搜索（如`dir/other`）。
+```makefile
+vpath % dir
+```
+
+make 变量：`VPATH` —— 所有先决条件的搜索路径，通常，这些目录应该包含当前目录中不存在的依赖文件。
+示例：
+```makefile
+VPATH = src:../headers
+```
+指定包含两个目录（`src`，`../headers`）的路径，`make` 按该顺序搜索。
+
+---
 #### `%` 模式匹配通配符 的使用
 用于指定一个规则可以匹配多个目标文件。
 

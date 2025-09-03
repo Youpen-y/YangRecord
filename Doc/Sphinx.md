@@ -1,0 +1,1 @@
+`Sphinx` 是一个文档生成器工具，将一组纯文本源文件转换为各种输出格式，自动生成交叉引用、索引等。简单讲，如果有一个文档包含一堆 reStructuredText 或 Markdown 文件，`Sphinx` 可以生成一系列 HTML 文件、PDF文件（通过LaTeX），手册页等。

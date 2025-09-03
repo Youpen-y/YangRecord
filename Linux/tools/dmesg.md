@@ -20,6 +20,7 @@ dmesg [options]
 - `-w, --follow`，保持 `dmesg` 运行并等待新消息，该功能仅在具有可读 `/dev/kmsg` 文件的系统上可用。
 - `-W, --follow-new`，等待并只打印新消息
 - `-k, --kernel`，打印内核消息
+- `-u` ，打印用户消息
 - `-T, --ctime`，打印人-可读的时间戳
 
 #### 示例
@@ -61,4 +62,16 @@ sudo dmesg -l info
 4. 结合设备和 Level
 ```bash
 sudo dmesg -x
+```
+
+5. 以人可读，连续的状态展示用户级和内核级消息
+```bash
+sudo dmesg -HTwx
+kern  :info  : [Sun Jul 20 19:21:46 2025] wlp2s0: send auth to f0:ab:1f:50:de:e8 (try 1/3)
+kern  :info  : [Sun Jul 20 19:21:46 2025] wlp2s0: authenticated
+kern  :info  : [Sun Jul 20 19:21:46 2025] wlp2s0: associate with f0:ab:1f:50:de:e8 (try 1/3)
+kern  :info  : [Sun Jul 20 19:21:46 2025] wlp2s0: RX AssocResp from f0:ab:1f:50:de:e8 (capab=0x1c31 status=0 aid=11)
+kern  :info  : [Sun Jul 20 19:21:46 2025] wlp2s0: associated
+kern  :debug : [Sun Jul 20 19:21:46 2025] wlp2s0: Limiting TX power to 30 (30 - 0) dBm as advertised by f0:ab:1f:50:de:e8
+kern  :info  : [Sun Jul 20 19:30:09 2025] perf: interrupt took too long (2541 > 2500), lowering kernel.perf_event_max_sample_rate to 78000
 ```

@@ -1,8 +1,14 @@
 `pkg-config` - 返回已安装库的元信息（meta information）
 
+目前程序已更名为 `pkgconf`。
+语法：
+```bash
+pkgconf [options] [list of modules]
+```
+
 作为编译应用程序和库的辅助工具，可帮助在命令行中插入正确的编译器选项，以便应用程序可以使用 `gcc -o test test.c $(shell pkg-config --libs --cflags glib-2.0)` 等参数，而无需硬编码 `glib` （或其他库）的路径。它与语言无关，因此可以用来定义文档工具的位置。
 
-主要用于检索系统中已安装库的信息，通信用于编译和链接一个或多个库。
+主要用于检索系统中已安装库的信息，通常用于编译和链接一个或多个库。
 功能：
 - 查找库的安装路径 —— 帮助找到库的头文件路径和库文件路径
 - 提供编译和链接选项 —— 自动生成包含编译器选项（`-I`）和链接器选项（`-L/-l`）的命令行参数
@@ -16,6 +22,13 @@
 	- `/usr/local/lib/pkgconfig/`
 	- 通过 `PKG_CONFIG_PATH` 指定的自定义目录
 - `pkg-config` 通过读取以 `.pc` 为后缀的配置文件获取关于已安装库的信息。
+
+查看 `pkg-config` 搜索路径，可通过定义 `PKG_CONFIG_PATH` 添加更多路径。或者通过 设置 `PKG_CONFIG_LIBDIR` 替换默认搜索路径。
+```bash
+$ pkg-config --variable pc_path pkg-config
+/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+```
+
 一个`example.pc`示例
 ```ini
 prefix=/usr/local
@@ -32,6 +45,13 @@ Libs: -L${libdir} -lexample
 关键字段：
 - `Cflags`：编译时需要的头文件路径选项
 - `Libs`：链接时需要的库路径和库文件选项
+
+其他字段：
+- `Name`：为包提供一个人类可读的名称；不必与模块名称相同，而是根据数据文件的名称决定。
+- `Version`：软件包的完整版本；
+- `Requires, Conflicts`：指定模块的依赖关系，with or without 版本限制。`Requires` 列出了需要存在的其他模块，`Conflicts`列出了使用当前模块时不能存在的包。在 `Requires` 中不能列举同一模块多次，但 `Conflicts` 中可以。所有模块都可以选择性有版本说明符，可以使用七个基本比较：`=, <, >, <=, >=, !=, !`
+- `Description, URL`：关于该包的简要信息
+
 
 使用方法
 - 获取头文件路径（编译选项）
@@ -90,10 +110,10 @@ export PKG_CONFIG_PATH=/custom/path/lib/pkgconfig:$PKG_CONFIG_PATH
 作用：检测指定的库是否可用，并获取其编译和链接选项。
 语法：
 ```m4
-PKG_CHECK_MODULES(variable-prefix, modules, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+PKG_CHECK_MODULES(variable-prefix, list-of-modules, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
 ```
-`variable-prefix`：生成的变量的前缀，用于存储结果（如 `FOO_CFLAGS` 和 `FOO_LIBS`）。
-`modules`：需要检测的库（`pkg-config`模块名），多个库用空格分隔。
+`variable-prefix`：生成的变量的前缀，用于存储结果（如前缀为 `FOO` 将获得两个变量 `FOO_CFLAGS` 和 `FOO_LIBS`）。
+`list-of-modules`：需要检测的库（`pkg-config`模块名），多个库用空格分隔。
 `[ACTION-IF-FOUND]`：（可选），找到库时执行的命令。
 `[ACTION-IF-NOT-FOUND]`：（可选），未找到库时执行的命令。
 
@@ -116,6 +136,28 @@ PKG_CHECK_MODULES([FOO], [glib-2.0 >= 2.56 gtk+-3.0], [], [
 PKG_PROG_PKG_CONFIG([MINIMUM-VERSION])
 ```
 - `MINIMUM-VERSION`（可选）：指定最低版本的 `pkg-config`
+
+3. `PKG_CHECK_VAR` 
+作用：读取某个库的 `.pc` 文件中的变量值
+语法：
+```m4
+PKG_CHECK_VAR(var-name, module, pkgconfig-variable, action-if-found, action-if-not-found)
+```
+
+|参数|说明|
+|---|---|
+|`var-name`|要定义的 shell 变量名（将存储查询到的值）|
+|`module`|`.pc` 文件名（例如 `libcurl`, `zlib`, `openssl`）|
+|`pkgconfig-variable`|要读取的变量名（比如 `prefix`, `exec_prefix`, `libdir`, `includedir`, `modversion` 等）|
+|`action-if-found`|如果成功读取到变量值，则执行此动作|
+|`action-if-not-found`|如果模块不存在或变量未定义，则执行此动作|
+示例：获得 `libcurl` 的 `libdir` 路径
+```m4
+PKG_CHECK_VAR([CURL_LIBDIR], [libcurl], [libdir],
+    [AC_MSG_NOTICE([libcurl libdir is $CURL_LIBDIR])],
+    [AC_MSG_ERROR([libcurl not found or libdir not defined])])
+```
+含义：使用 `pkg-config --variable=libdir libcurl` 获取值，将这个值存入 shell 变量 `CURL_LIBDIR` 。成功后打印消息；如果失败就中止配置流程。
 
 环境变量在 `configure.ac` 的处理
 1. `PKG_CONFIG`
