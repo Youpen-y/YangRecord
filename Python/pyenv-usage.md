@@ -6,7 +6,7 @@
 - 安装 Python 预发布版本，测试 bug
 
 > 系统Python —— 操作系统自带的 Python 。
-> 这个Python 实际上属于操作系统，位置为/usr/bin/python3 。不过这可能不是需要的Python 版本。如果为其安装软件包，需要运行sudo pip install，将为全局安装。
+> 这个Python 实际上属于操作系统，位置为 `/usr/bin/python3` 。不过这可能不是需要的Python 版本。如果为其安装软件包，需要运行sudo pip install，将为全局安装。
 > 同一软件包存在多个版本，不同软件依赖的版本可能不同。
 
 安装
@@ -26,6 +26,17 @@ curl https://pyenv.run | bash
 之后，重新加载 shell
 ```shell
 exec "$SHELL"
+```
+
+更新
+===
+查看 `pyenv` 安装方式（git 方式）
+```bash
+$ which pyenv
+/home/yongy/.pyenv/bin/pyenv
+$ cd $(pyenv root)
+~/.pyenv $ git pull
+~/.pyenv $ exec "$SHELL"
 ```
 
 使用 pyenv 安装 Python

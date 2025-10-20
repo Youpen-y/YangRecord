@@ -232,7 +232,6 @@ $ echo $foo
 $ let "foo = 1 + 2"
 ```
 
-
 #### `pushd, popd, dirs`
 操作目录堆栈的 shell builtin 。
 显示目录堆栈：
@@ -370,7 +369,6 @@ echo "准备启动程序..."
 exec /usr/bin/myprogram
 ```
 
-
 2. 重定向文件描述符（常用于高级 I/O）
 ```bash
 exec fd>file
@@ -388,3 +386,44 @@ exec 3> mylog.txt       # 打开文件用于写 fd = 3
 echo "Log entry" >&3    # 把内容写入 fd = 3 指向的文件
 exec 3>&-               # 关闭 fd = 3
 ```
+
+#### `command`
+`command` 可以用来执行一个简单的命令或查看某个命令的信息
+语法：
+```bash
+command [-pVv] COMMAND [arg ...]
+```
+- `COMMAND`: 要执行的真实命令
+- `arg ...`: 传给该命令的参数
+
+选项：
+- `-p`: 使用默认 PATH
+- `-v`: 简要显示命令信息
+- `-V`: 详细显示命令信息
+
+示例：
+1. 绕过 `alias` 或函数执行真实命令
+```bash
+ls() { echo "fake ls"; }
+ls          # 输出: fake ls
+command ls  # 执行系统里的真实 ls 命令
+```
+
+2. 查看命令来源（是函数？别名？内建？二进制？）
+```bash
+$ command -v ls
+alias ls='ls --color=auto'
+$ command -V cd
+cd is a shell builtin
+```
+
+3. 查看某个命令是否存在
+```bash
+available() {
+	command -v "$1" >/dev/null
+}
+available COMMAND
+```
+
+
+主要作用是：执行真正的命令而不是别名或函数；查询命令来源。
