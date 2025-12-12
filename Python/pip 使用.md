@@ -72,6 +72,37 @@ pip install package_name -i https://mirrors.aliyun.com/pypi/simple
 ```
 
 ### 永久配置
+#### 查看 `pip` 配置文件路径
+```bash
+pip config debug
+env_var:
+env:
+global:
+  /etc/xdg/xdg-ubuntu/pip/pip.conf, exists: False
+  /etc/xdg/pip/pip.conf, exists: False
+  /etc/pip.conf, exists: True
+    global.index-url: https://pypi.tuna.tsinghua.edu.cn/simple
+    global.extra-index-url: https://pypi.org/simple
+site:
+  /home/yongy/.pyenv/versions/3.13.3/pip.conf, exists: False
+user:
+  /home/yongy/.pip/pip.conf, exists: False
+  /home/yongy/.config/pip/pip.conf, exists: False
+```
+可以看到全局配置 `global` 下 `/etc/pip.conf` 为 `True`，其中设置了两个源。在 Linux 上，我们通常可以使用
+```bash
+/etc/pip.conf       # 全局
+~/.pip/pip.conf     # 用户级
+```
+
+- 直接修改
+```conf
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+extra-index-url = https://pypi.org/simple
+```
+
+- 终端设置
 ```bash
 # 阿里源
 pip config set global.index-url https://mirrors.aliyun.com/pypi/simple

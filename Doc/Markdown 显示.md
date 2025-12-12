@@ -51,3 +51,43 @@ This is a sentence with footnote[^1]
 This is a sentence with footnote[^1]
 
 [^1]: some content
+
+
+5. 图片导入
+ `img alt` 是在图片不能正常显示时出现的文本提示；`img title` 是在鼠标移动到图片上时的文本提示。
+- 方式1
+```markdown
+![img alt](../image/example.jpg "img title")
+```
+- 方式2（html 方式，可调整宽度和高度）
+```
+<img src="example.jpg" alt="img alt" title="img title" width="500" height="600" style="...">
+```
+`style="..."` 用于调整图片格式的 `css` 代码。
+
+如何让图片居中？
+0. 使用 `<center>` （其中 `style` 指定图片随页面缩放）
+```html
+<center>
+    <img src="image.jpg" alt="img alt" style="width: 100%;" />
+</center>
+```
+
+0. 使用 `text-align: center` （适用于行内元素，`img` 默认是行内元素）
+```html
+<div style="text-align: center;">
+    <img src="image.jpg" alt="img alt" />
+</div>
+```
+2. 使用 Flexbox （现代网页常用）
+```html
+<div style="display: flex; justify-content: center;">
+    <img src="image.jpg" alt="img alt" />
+</div>
+```
+
+如何让文字环绕图片？
+1. 使用 HTML `float: right`
+```
+<img src="" style="float: right; margin: 10px;">    
+```

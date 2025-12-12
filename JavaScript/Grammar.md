@@ -42,6 +42,8 @@ const pageLoadTime = /* time taken by a webpage to load */;
 
 数据类型
 ===
+<img  src="images/js_data_types.png"  style="width: 80%;"/>
+
 JavaScript 是动态类型语言，变量不会和数据类型绑定。
 - `number` ：表示整数和浮点数. 支持 `+, -, *, /` 运算，除了常规数字外，还包括 `Infinity, -Infinity, NaN` 特殊数值。
 ```js

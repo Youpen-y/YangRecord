@@ -239,6 +239,19 @@ os.execvpe("ls", args, env)
 
 ---
 常用功能
+0. `access` - 检验权限模式
+```python
+def access(
+    path: FileDescriptorOrPath, mode: int, *, dir_fd: int | None = None, effective_ids: bool = False, follow_symlinks: bool = True
+) -> bool: ...
+"""参数 path 是被检测的是否具有访问权限的路径.
+参数 mode:
+- os.F_OK: 测试 path 是否存在
+- os.R_OK: 测试 path 是否可读
+- os.W_OK: 测试 path 是否可写
+- os.X_OK: 测试 path 是否可执行
+```
+
 1. `getcwd` - 获取当前工作目录
 ```python
 def getcwd() -> str: ...
@@ -339,6 +352,11 @@ def scandir(path: GenericPath[AnyStr]) -> _ScandirIterator[AnyStr]: ...
 ```python
 files = [entry.name for entry in os.scandir('.') if entry.is_file()]
 dirs = [entry.name for entry in os.scandir('.') if entry.is_dir()]
+```
+
+14. `chflags` - 设置路径 `path` 的标志
+```python
+
 ```
 
 - `os.environ`：一个映射对象（mapping object/字典对象），其中键和值代表进程环境的字符串。如 `os.environ['HOME']` 返回主目录。

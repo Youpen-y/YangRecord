@@ -73,3 +73,13 @@ draft = true
 上述使用 `draft = true` ，意味着使用 `hugo server` 构建时
 不会发布该草稿。可使用 `hugo server -D/--buildDrafts` 查看草稿情况，满意则设置 `draft = false`。
 
+
+注意：
+Hugo 支持两种组织内容的方式：
+1. 传统方式：`content/posts/my-article.md`
+2. Page Bundles：`content/posts/my-article/index.md`
+Page Bundles 的优势是将文章的所有资源放在同一个目录下，便于管理。
+这种情况下创建新文章方法：
+```bash
+hugo new posts/my-new-post/index.md
+```

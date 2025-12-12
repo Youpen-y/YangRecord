@@ -425,5 +425,11 @@ available() {
 available COMMAND
 ```
 
-
 主要作用是：执行真正的命令而不是别名或函数；查询命令来源。
+
+#### `eval`
+`eval` （evaluate 的缩写）
+```
+Usage: eval [arg ...]
+```
+`eval` 接受零个或多个参数，把这些参数当成一个完整的 Shell 命令来执行。

@@ -2,9 +2,11 @@
 
 该语言的程序称为脚本，可直接写在网页的 HTML 中，并在页面加载时自动运行。脚本以纯文本形式提供和执行，无需特殊准备或编译即可运行。
 
+Javascript 可用于 Web/Mobile Apps, Real-time Networking Apps, Command-line Tools, even Games.
+
 JavaScript 名称中的 Java 纯粹是营销决策“蹭热度”。
 
-如今，JavaScript 不仅可以在浏览器中运行，还可以在服务器上执行，或者是任何包含 JavaScript engine（JS 引擎）程序的设备上执行。
+Javascript 最初设计为只在浏览器中运行，所以每个浏览器都有可以执行 JavaScript 代码的 JavaScript Engine 。2009 年，Ryan Dahl 将开源 JavaScript 引擎（Chrome v8）嵌入到一个 C++ 程序中（称之为 Node），因此 JavaScript 代码也可以在 Node 中运行。如今，JavaScript 不仅可以在浏览器中运行，还可以在服务器上执行，或者是任何包含 JavaScript engine（JS 引擎）程序的设备上执行。
 不同的引擎有不同的代号：
 - `V8` - Chrome, Opera 和 Edge 中
 - `SpiderMonkey` - Firefox 中

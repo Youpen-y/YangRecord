@@ -97,6 +97,10 @@ git worktree move <worktree> <new-path>
 ```bash
 git worktree add ../main-branch main
 ```
+注意：如果项目有 `submodule`，创建 `worktree` 时不会自动检出子模块。需要切换到 `worktree` 目录下，手动初始化和更新 `submodule`.
+```bash
+git submodule update --init --recursive
+```
 
 2. 切换到新的工作树并验证实现
 ```bash
